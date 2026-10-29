@@ -1,4 +1,4 @@
-<h1 align="center">G2M-LIO: LiDAR-Inertial Odometry Exploring Gaussian Voxel Map Representation and Map Fusion and Modeling Strategies</h1>
+<h1 align="center">G2M-LIO: LiDAR-Inertial Odometry Based on Gaussian Voxel Map Merging and Modeling Strategy</h1>
 <p align="center">
   <a href="#overview">Overview</a> ·
   <a href="#install">Install</a> ·
@@ -267,7 +267,7 @@ We extend our deepest appreciation to the teams behind the following datasets. T
 
 ## Known Issues
 
-Although I check GitHub infrequently, I welcome discussions about the algorithm. With my limited experience, some code issues or replies may be elementary or incomplete. Confirmed bugs and theoretical limitations will be recorded here.
+I do not check GitHub frequently, but I welcome discussions about the algorithm. My knowledge is limited, so it may take me considerable time to offer an explanation, and that explanation may not be rigorous. I will list confirmed unresolved issues here; some may also point to directions for future research.
 
 ## LICENSE
 

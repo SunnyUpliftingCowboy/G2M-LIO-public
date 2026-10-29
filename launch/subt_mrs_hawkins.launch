@@ -1,0 +1,47 @@
+<launch>
+  <arg name="rviz" default="true" />
+  <arg name="use_sim_time" default="true" />
+  <arg name="decode_packets" default="true" />
+  <arg name="play_bag" default="false" />
+  <arg name="bag_file" default="" />
+  <!-- The first 3 s contain real rotation; initialize during the measured stationary interval. -->
+  <arg name="start" default="3.3" />
+  <arg name="rate" default="1.0" />
+  <arg name="runtime_pos_log_enable" default="false" />
+
+  <rosparam command="load" file="$(find g2m_lio)/config/subt_mrs_hawkins.yaml" />
+  <param name="runtime_pos_log_enable" type="bool" value="$(arg runtime_pos_log_enable)" />
+  <param name="use_sim_time" type="bool" value="$(arg use_sim_time)" />
+
+  <!-- The bag contains VelodyneScan packets, not PointCloud2. No live UDP driver is needed. -->
+  <!-- Noetic velodyne_pointcloud 1.7.0 publishes XYZ + intensity + ring + time (seconds). -->
+  <group if="$(arg decode_packets)">
+    <node pkg="nodelet" type="nodelet" name="hawkins_velodyne_decoder"
+          args="standalone velodyne_pointcloud/TransformNodelet" output="screen" required="true">
+      <param name="model" value="VLP16" />
+      <param name="calibration" value="$(find velodyne_pointcloud)/params/VLP16db.yaml" />
+      <param name="organize_cloud" value="false" />
+      <!-- Preserve the LiDAR frame and let G2M-LIO perform IMU deskew and extrinsic transforms. -->
+      <param name="fixed_frame" type="str" value="" />
+      <param name="target_frame" type="str" value="" />
+      <!-- Keep the baseline blind range. The Noetic decoder supports at most 200 m. -->
+      <param name="min_range" value="0.1" />
+      <param name="max_range" value="200.0" />
+      <remap from="velodyne_packets" to="/velodyne_packets" />
+      <remap from="velodyne_points" to="/velodyne_points" />
+    </node>
+  </group>
+
+  <node pkg="g2m_lio" type="run_mapping_online" name="laserMapping" output="screen" />
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="ivox_rviz"
+          args="-d $(find g2m_lio)/rviz_cfg/subt_mrs_hawkins.rviz" />
+  </group>
+
+  <!-- Alternatively start rosbag play with clock publishing yourself after launching. -->
+  <group if="$(arg play_bag)">
+    <node pkg="rosbag" type="play" name="hawkins_bag" output="screen"
+          args="--clock --delay=3.0 --start=$(arg start) --rate=$(arg rate) &quot;$(arg bag_file)&quot;" />
+  </group>
+</launch>

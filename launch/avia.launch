@@ -1,0 +1,28 @@
+<!--
+  G2M-LIO modification notice (2026-10-28).
+  This file contains G2M-LIO adaptations of AKF-LIO (45fc811ba6fe).
+  This dated notice was added on the date above; earlier modification dates
+  were not reconstructed. See MODIFICATIONS.md at the repository root.
+  Existing upstream copyright and license notices are retained.
+-->
+<launch>
+  <!-- Launch file -->
+
+    <arg name="rviz" default="true" />
+    <arg name="consistency_log_enable" default="false" />
+    <arg name="consistency_file_path" default="$(find g2m_lio)/Log/consistency.csv" />
+    <arg name="traj_log_file" default="$(find g2m_lio)/Log/traj.txt" />
+
+    <rosparam command="load" file="$(find g2m_lio)/config/avia.yaml" />
+
+    <param name="runtime_pos_log_enable" type="bool" value="0" />
+    <param name="consistency_log_enable" type="bool" value="$(arg consistency_log_enable)" />
+    <param name="consistency_file_path" type="string" value="$(arg consistency_file_path)" />
+    <node pkg="g2m_lio" type="run_mapping_online" name="laserMapping" output="screen"
+          args="--traj_log_file=$(arg traj_log_file)" />
+
+    <group if="$(arg rviz)">
+      <node launch-prefix="nice" pkg="rviz" type="rviz" name="ivox_rviz" args="-d $(find g2m_lio)/rviz_cfg/loam.rviz" />
+    </group>
+
+</launch>

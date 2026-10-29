@@ -1,0 +1,105 @@
+common:
+  lid_topic: "/livox/mid360/lidar"
+  imu_topic: "/livox/mid360/imu"
+  # lid_topic: "/livox/lidar"
+  # imu_topic: "/livox/imu"
+  
+  # IMU到激光雷达的时间延迟（秒）
+  # 正值表示IMU数据比激光雷达数据晚，负值表示IMU数据比激光雷达数据早
+  # 如果启用IMU滤波器，滤波器的时间延迟会自动累加到此参数上
+  # time_diff_lidar_to_imu: 0.00707092
+
+preprocess:
+  lidar_type: 1                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 4
+  blind: 0.1
+  max_range: 500.0              # 最大量程 (m)
+  enable_max_range_filter: false # 是否启用最大量程筛选
+  time_scale: 1.e-6
+
+lio:
+  # acc_cov: 0.1
+  # gyr_cov: 0.1
+  acc_cov: 0.5 # 0.2
+  gyr_cov: 0.3 # 0.5
+  b_acc_cov: 0.0001
+  b_gyr_cov: 0.0001
+  lidar_cov: 0.001
+  lidar_range_sigma: 0.02       # 测距标准差 (m) 0.02
+  lidar_angle_sigma_deg: 0.05  # 测角标准差 (deg) 0.05
+  residual_gate_sigma: 3      # 残差门控阈值（标准差倍数）
+  residual_variance_floor: 0.001 # 残差方差下限
+  imu_init_frame_count: 20      # IMU初始化使用的激光帧数
+  # IMU参数
+  # gravity_m_s2: 重力加速度值 (m/s²), 默认 9.81 (广东地区)
+  # imu_acc_unit: IMU加速度计在1g重力下的原始读数, 默认 -1.0 (自动从静止数据计算)
+  #   正值表示指定原始读数值作为加速度转换基准
+  #   若与自动计算值差异过大(比值>2或<0.5)，将自动使用计算值并警告参数可能有误
+  # gravity_m_s2: 9.81
+  gravity_m_s2: 9.81
+  imu_acc_unit: -1.0
+  # IMU 不可交换误差补偿 (non-commutativity error compensation)
+  coning_compensation: false
+  sculling_compensation: false
+  extrinsic_T: [ -0.011, -0.02329, 0.04412]
+  extrinsic_R: [ 1.,  0.,  0.,
+                 0.,  1.,  0.,
+                 0.,  0.,  1. ]
+
+publish:
+  path_publish_en: true
+  scan_reg_pub_en: true    # publish effect pointcloud
+  dense_publish_en: true  # publish dense pointcloud
+  map_publish_en: false   #pub gaussian mean     
+  voxel_input_pub_en: false  # 发布当前帧降采样后、写入 iVox 前的点云到 /voxel_map_input
+  gaussian_publish_en: false  # could be very slow with many gaussians decided by gaussian_pub_dis and gaussian_pub_min_cnt
+  gaussian_pub_dis: 10 # meter, distance to current pose
+  gaussian_pub_min_cnt: 5 # minimum cnt of gaussians to publish
+  obs_error_viz_en: false  # 启用观测误差模型可视化对比（红/绿/蓝柱状图）
+  voxel_debug_en: false    # 启用体素-高斯关系调试可视化（体素框+高斯计数）
+  voxel_size_monitor_en : true  # 启用体素大小监控（体素大小随距离变化的统计曲线）
+
+gravity_align_en: false   # 是否启用重力对齐
+mapping_log_enable: false   # 控制 [mapping] 每帧点数统计日志输出
+runtime_pos_log_enable: true
+point_filter_num: 1
+max_iteration: 3
+
+# ============================================
+# 地图点协方差传播
+# ============================================
+# 是否启用地图点协方差传播功能
+# 启用后，地图点的协方差将包含系统状态（位置、姿态）的误差传播
+map_covariance_propagation:
+  enabled: true  # 功能总开关
+
+  covariance_propagation:
+    enabled: true  # 是否启用协方差传播
+
+  # 协方差可视化配置
+  visualization:
+    enabled: false  # 是否启用协方差可视化
+    max_cov_trace: 0.1  # 协方差trace的最大值（用于颜色归一化）
+
+  # 调试日志
+  debug:
+    publish_log: false  # 是否输出协方差统计日志
+
+voxel_map:
+  adap_voxel_size_en: true   # true=根据目标点数自适应扫描体素大小，false=使用固定 scan_voxel_resolution
+  pcl_voxel_downsample_en: false  # true=PCL VoxelGrid 计算体素质心，false=每体素取首点
+  target_point_size: 2000       # 自适应降采样目标点数（仅 adap_voxel_size_en=true 时生效）
+  # max_gaussian_points: 10000    # 单个高斯基元最大累计点数，达到后停止融合
+  max_gaussian_points: 1000000
+  min_support_voxels: 5         # 拟合平面所需的最少支撑体素数
+  max_support_voxels: 7         # 单次平面拟合允许融合的最多支撑体素数
+  support_voxel_use_map_resolution: true # 使用实际地图体素分辨率统计支撑体素
+  ivox_nearby_type: 26         # iVox 邻域类型：0/6/18/26
+  cross_voxel_merge_en: false  # true=允许跨体素融合，false=仅在中心体素内融合
+  ivox_grid_resolution: 0.5  # map voxel resolution
+  scan_voxel_resolution: 0.5   # 当前帧点云固定降采样分辨率 (m)，自适应关闭时使用
+
+
+t_mal: 7.82 # mal distance threshold
+t_stop_pseudo_merge: 3 # threshold of pseudo merge
+time_to_delete_local_map: 10000 #second, time to delete local map, set small if memory is not enough

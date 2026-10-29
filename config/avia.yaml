@@ -1,0 +1,112 @@
+# G2M-LIO modification notice (2026-10-28).
+# This file contains G2M-LIO adaptations of AKF-LIO (45fc811ba6fe).
+# This dated notice was added on the date above; earlier modification dates
+# were not reconstructed. See MODIFICATIONS.md at the repository root.
+# Existing upstream copyright and license notices are retained.
+
+common:
+  lid_topic: "/livox/lidar"
+  imu_topic: "/livox/imu"
+
+preprocess:
+  lidar_type: 1                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 6
+  # blind: 0.5
+  # blind: 0.0
+  blind: 4 #Garden
+  time_scale: 1e-9
+  # time_scale: 1e-6
+
+lio:
+  acc_cov: 0.1
+  gyr_cov: 0.1
+  b_acc_cov: 0.0001
+  b_gyr_cov: 0.0001
+  lidar_cov: 0.001
+  lidar_range_sigma: 0.02       # 测距标准差 (m)
+  lidar_angle_sigma_deg: 0.05  # 测角标准差 (deg)
+  residual_gate_sigma: 3.0       # 残差门控阈值（标准差倍数）
+  residual_variance_floor: 0.001 # 残差方差下限
+  imu_init_frame_count: 20      # IMU初始化使用的激光帧数
+  # IMU参数
+  # gravity_m_s2: 重力加速度值 (m/s²), 默认 9.81 (广东地区)
+  # imu_acc_unit: IMU加速度计在1g重力下的原始读数, 默认 -1.0 (自动从静止数据计算)
+  #   正值表示指定原始读数值作为加速度转换基准
+  #   若与自动计算值差异过大(比值>2或<0.5)，将自动使用计算值并警告参数可能有误
+  gravity_m_s2: 9.81
+  # gravity_m_s2: 9.788 #广州重力值
+  imu_acc_unit: -1.0
+  # IMU 不可交换误差补偿 (non-commutativity error compensation)
+  # 圆锥补偿：补偿角速度方向变化引起的转动不可交换误差（coning error）
+  # 划桨补偿：补偿角振动与线振动耦合引起的速度不可交换误差（sculling error）
+  coning_compensation: false
+  sculling_compensation: false
+  extrinsic_T: [ 0.04165, 0.02326, -0.0284 ]
+  extrinsic_R: [ 1.,  0.,  0.,
+                 0.,  1.,  0.,
+                 0.,  0.,  1. ]
+
+publish:
+  path_publish_en: true
+  scan_reg_pub_en: true    # publish effect pointcloud
+  dense_publish_en: true  # publish dense pointcloud
+  map_publish_en: false   #pub gaussian mean
+  voxel_input_pub_en: false  # 发布当前帧降采样后、写入 iVox 前的点云到 /voxel_map_input
+  gaussian_publish_en: false  # could be very slow with many gaussians decided by gaussian_pub_dis and gaussian_pub_min_cnt
+  gaussian_pub_dis: 10 # meter, distance to current pose
+  gaussian_pub_min_cnt: 5 # minimum cnt of gaussians to publish
+  obs_error_viz_en: false  # 启用观测误差模型可视化对比（红/绿/蓝三轴）
+  voxel_debug_en: false    # 启用体素-高斯关系调试可视化（体素框+高斯计数） 但是这个功能应该是存在问题的，只融合一个体素的也有问题
+  voxel_size_monitor_en: true  # 体素大小自适应过程监控 (PlotJuggler: /voxel_size_monitor)
+
+gravity_align_en: false   # align initial gravity to (0,0,-1) world frame on first scan
+mapping_log_enable: false   # 控制 [mapping] 每帧点数统计日志输出
+runtime_pos_log_enable: true
+point_filter_num: 1
+max_iteration: 3
+consistency_log_enable: false
+
+voxel_map:
+  adap_voxel_size_en: false   # true=根据目标点数自适应扫描体素大小，false=使用固定 scan_voxel_resolution
+  pcl_voxel_downsample_en: true  # true=PCL VoxelGrid 计算体素质心，false=每体素取首点
+  target_point_size: 2000
+  max_gaussian_points: 1000000    # 单个高斯基元最大累计点数，达到后停止融合
+  min_support_voxels: 5            # 拟合平面所需的最少支撑体素数
+  max_support_voxels: 7            # 单次平面拟合允许融合的最多支撑体素数
+  support_voxel_use_map_resolution: false # 使用实际地图体素分辨率统计支撑体素
+  ivox_nearby_type: 26
+  cross_voxel_merge_en: false  # true=允许跨体素融合，false=仅在中心体素内融合
+  ivox_grid_resolution: 0.5 # map voxel resolution
+  scan_voxel_resolution: 0.5   # 当前帧点云固定降采样分辨率 (m)，自适应关闭时使用
+t_mal: 7.82 # mal distance threshold 90% 6.251 95% 7.82 99% 11.345
+t_stop_pseudo_merge: 3 # threshold of pseudo merge
+time_to_delete_local_map: 10000 #second, time to delete local map, set small if memory is not enough
+
+# ============================================
+# 地图点协方差传播
+# ============================================
+# 是否启用地图点协方差传播功能
+# 启用后，地图点的协方差将包含系统状态（位置、姿态）的误差传播
+map_covariance_propagation:
+  enabled: true  # 功能总开关
+
+  # 协方差传播配置
+  covariance_propagation:
+    enabled: true    # 是否启用协方差传播
+
+  # 协方差可视化配置
+  visualization:
+    enabled: false  # 是否启用协方差可视化
+    max_cov_trace: 0.1  # 协方差trace的最大值（用于颜色归一化）
+
+  # 调试日志
+  debug:
+    publish_log: false  # 是否输出协方差统计日志
+
+# HKairport01: -s 80 -u 650 |===| HKairport02: -s 64 -u 339 |===| HKairport03: -s 65 -u 248
+# HKairport_GNSS01: -s 100 -u 650 |===| HKairport_GNSS02: -s 78 -u 337 |===| HKairport_GNSS03: -s 100 -u 248
+# HKisland01: -s 100 -u 580 |===| HKisland02: -s 95 -u 305 |===| HKisland03: -s 84 -u 226
+# HKisland_GNSS01: -s 118 -u 585 |===| HKisland_GNSS02: -s 98 -u 302 |===| HKisland_GNSS03: -s 100 -u 224
+# AMtown01: -s 79 -u 1225 |===| AMtown02: -s 63 -u 663 |===| AMtown03: -s 105 -u 452
+# AMvalley01: -s 80 -u 1045 |===| AMvalley02: -s 80 -u 548 |===| AMvalley03: -s 84 -u 396
+# Featureless_GNSS01: -s 92 -u 1261 |===| Featureless_GNSS02: -s 48 -u 502 |===| Featureless_GNSS03: -s 22 -u 1250

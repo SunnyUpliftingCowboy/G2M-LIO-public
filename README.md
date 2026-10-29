@@ -69,11 +69,7 @@ Activate this environment again in each new analysis terminal with `source .venv
 
 ### Odometry system · core source required
 
-The preview contains the selected configuration, launch, and RViz files, but not the ROS package metadata, build files, or core source. A complete package is therefore still required.
-
-After obtaining the reviewed core package, place it in a catkin workspace. To use the public configuration and launch files, copy the selected files into that package before building:
-
-~~~bash
+<!-- ~~~bash
 source /opt/ros/noetic/setup.bash
 mkdir -p ~/g2m_ws/src
 cp -a /path/to/core_release/src/G2M_LIO ~/g2m_ws/src/
@@ -81,22 +77,21 @@ cp -a config launch rviz_cfg ~/g2m_ws/src/G2M_LIO/
 cd ~/g2m_ws
 catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
-~~~
+~~~ -->
 
-The four public YAML files are configuration references. In the complete package, launch files load them from `G2M_LIO/config/`; copying the preview alone does not provide a buildable ROS package.
 
 ## Run
 
 ### Odometry commands
 
-**Requires the complete, built core package.** In each ROS terminal, load the environment:
+In each ROS terminal, load the environment:
 
 ~~~bash
 source /opt/ros/noetic/setup.bash
 source ~/g2m_ws/devel/setup.bash
 ~~~
 
-For each example, start `roslaunch` in one terminal, then play the bag in another. Check the YAML topics, timestamp units, LiDAR type, and extrinsic calibration against the recording first. These launch files do not enable simulated time except for SubT-MRS Hawkins.
+Check the YAML topics, timestamp units, LiDAR type, and extrinsic calibration against the recording first. These launch files do not enable simulated time except for SubT-MRS Hawkins.
 
 The launch and RViz files in `launch/` and `rviz_cfg/` match the four public configurations. They do not include the G2M-LIO ROS node or its build files.
 
@@ -131,26 +126,6 @@ rosbag play /path/to/raw_data_core_2023-07-25-03-01-44.bag -s 3
 ~~~
 
 This example plays the **original SubT-MRS corridor bag**. The launch decodes VLP-16 packets from `/velodyne_packets` and reads IMU data from `/imu/data`. The start offset is adjustable; the local raw-bag playback command used 3 s.
-
-`corridor01_sensor_time.bag` is a local playback copy, not an official dataset file. The suffix means its bag record times were replaced with each message's sensor header time, and records were reordered by that time. This conversion is only needed for the simulated-clock workflow below; playback of the original bag above uses its existing bag times.
-
-For this optional sensor-clock workflow, create a separate copy and enable simulated time:
-
-~~~bash
-# Use the system Python with ROS Noetic available.
-source /opt/ros/noetic/setup.bash
-/usr/bin/python3 scripts/prepare_subt_mrs_hawkins.py \
-  --input /path/to/raw_data_core_2023-07-25-03-01-44.bag \
-  --output /path/to/corridor01_sensor_time.bag
-
-# Terminal 1: complete G2M-LIO workspace sourced as above
-roslaunch g2m_lio subt_mrs_hawkins.launch rviz:=true play_bag:=false use_sim_time:=true
-
-# Terminal 2
-rosbag play --clock --start=3.3 /path/to/corridor01_sensor_time.bag
-~~~
-
-The original-bag command above does not need simulated time or `--clock`. The converted copy uses both because this launch is configured to follow its sensor-time playback clock. Neither bag is bundled.
 
 **NTU VIRAL — `ntuviral.yaml` + `ntuviral.launch`**
 
@@ -250,10 +225,10 @@ The log header must contain `timestamp, x, y, z, qx, qy, qz, qw, nis, nis_dof` a
 
 | Sensor / dataset | Configuration | Launch | RViz |
 | :--- | :--- | :--- | :--- |
-| Livox Avia / Botanic Garden | `config/avia.yaml` | `launch/avia.launch` | `rviz_cfg/loam.rviz` |
-| Livox Mid-360 / M3DGR | `config/mid360.yaml` | `launch/mid360.launch` | `rviz_cfg/loam.rviz` |
-| VLP-16 / SubT-MRS Hawkins | `config/subt_mrs_hawkins.yaml` | `launch/subt_mrs_hawkins.launch` | `rviz_cfg/subt_mrs_hawkins.rviz` |
-| Ouster / NTU VIRAL | `config/ntuviral.yaml` | `launch/ntuviral.launch` | `rviz_cfg/loam.rviz` |
+| Livox Avia / [Botanic Garden](https://github.com/robot-pesg/BotanicGarden) | `config/avia.yaml` | `launch/avia.launch` | `rviz_cfg/loam.rviz` |
+| Livox Mid-360 / [M3DGR](https://github.com/SJTU-ViSYS/M3DGR) | `config/mid360.yaml` | `launch/mid360.launch` | `rviz_cfg/loam.rviz` |
+| VLP-16 / [SubT-MRS](https://superodometry.com/datasets) | `config/subt_mrs_hawkins.yaml` | `launch/subt_mrs_hawkins.launch` | `rviz_cfg/subt_mrs_hawkins.rviz` |
+| Ouster / [NTU VIRAL](https://ntu-aris.github.io/ntu_viral_dataset/) | `config/ntuviral.yaml` | `launch/ntuviral.launch` | `rviz_cfg/loam.rviz` |
 
 ## Acknowledgement
 
@@ -267,7 +242,7 @@ We extend our deepest appreciation to the teams behind the following datasets. T
 
 ## Known Issues
 
-I do not check GitHub frequently, but I welcome discussions about the algorithm. My knowledge is limited, so it may take me considerable time to offer an explanation, and that explanation may not be rigorous. I will list confirmed unresolved issues here; some may also point to directions for future research.
+I welcome discussions about the algorithm, but my knowledge is limited, so it may take me considerable time to offer an explanation, and that explanation may not be rigorous. I will list confirmed unresolved issues here; some may also point to directions for my future research.
 
 ## LICENSE
 

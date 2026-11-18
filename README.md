@@ -247,11 +247,10 @@ The source snapshot retains these known implementation limits:
 
 - Position prediction includes a second-order acceleration term, while position covariance propagation retains a first-order approximation.
 - gravity_m_s2 controls acceleration scaling, but the S2 gravity-state norm remains fixed at 9.809 m/s². Changing the parameter does not change that state norm.
-- imu_init_frame_count currently counts IMU samples rather than LiDAR frames. Initialization assumes a stationary sensor and does not enforce stationarity.
 - Timestamp rollback handling and odometry publication after rejected scans need further work. Restart the node when restarting a recording from an earlier time.
 - Deskew uses SLERP for rotation and linear interpolation of predicted positions between IMU nodes.
 
-The included tests exercise IMU boundaries, compensation, bias/unit conversion, and process-model Jacobians. They do not establish dataset accuracy or validate the complete discrete covariance model. This source preparation does not change the algorithm to address the limits above.
+This source preparation does not change the algorithm to address the limits above.
 
 ## LICENSE
 

@@ -250,7 +250,6 @@ The source snapshot retains these known implementation limits:
 - Timestamp rollback handling and odometry publication after rejected scans need further work. Restart the node when restarting a recording from an earlier time.
 - Deskew uses SLERP for rotation and linear interpolation of predicted positions between IMU nodes.
 
-This source preparation does not change the algorithm to address the limits above.
 
 ## LICENSE
 

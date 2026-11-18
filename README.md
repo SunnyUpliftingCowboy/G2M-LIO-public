@@ -15,7 +15,6 @@ G2M-LIO is a LiDAR-inertial odometry research project built on [AKF-LIO](https:/
   <img src="assets/readme/image.png" width="920" alt="G2M-LIO processing flow">
 </p>
 
-> **Release plan** — Results, analysis tools, four configuration files, and their launch/RViz files are available here. Core source will be released after its comments and main components have been reviewed and the paper is formally accepted.
 
 ## Prerequisites
 
@@ -26,8 +25,8 @@ The development environment is **Ubuntu 20.04 · ROS Noetic · C++17**.
 | Component | Requirement |
 | :--- | :--- |
 | Build tools | CMake 3.5+, catkin, and a C++17 compiler |
-| C++ libraries | Eigen3, PCL 1.8+, OpenCV, yaml-cpp, glog, and gflags |
-| ROS packages | roscpp, rospy, geometry_msgs, nav_msgs, sensor_msgs, std_msgs, tf, pcl_ros, eigen_conversions, cv_bridge, and message generation/runtime |
+| C++ libraries | Eigen3, PCL 1.8+, OpenCV, yaml-cpp, glog, gflags, and TBB |
+| ROS packages | roscpp, rospy, geometry_msgs, nav_msgs, sensor_msgs, std_msgs, tf, pcl_ros, pcl_conversions, eigen_conversions, cv_bridge, visualization_msgs, and message generation/runtime |
 | Playback & visualization | rosbag, RViz; nodelet and velodyne_pointcloud for Hawkins packet decoding |
 | Livox messages | The core package includes the livox_ros_driver message definitions; live acquisition requires a compatible sensor driver |
 
@@ -38,47 +37,46 @@ sudo apt update
 sudo apt install -y \
   build-essential cmake git python3-pip python3-venv \
   libeigen3-dev libpcl-dev libopencv-dev libyaml-cpp-dev \
-  libgoogle-glog-dev libgflags-dev \
+  libgoogle-glog-dev libgflags-dev libtbb-dev \
   ros-noetic-catkin ros-noetic-roscpp ros-noetic-rospy \
   ros-noetic-geometry-msgs ros-noetic-nav-msgs \
   ros-noetic-sensor-msgs ros-noetic-std-msgs ros-noetic-tf \
-  ros-noetic-pcl-ros ros-noetic-eigen-conversions ros-noetic-cv-bridge \
+  ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-eigen-conversions ros-noetic-cv-bridge ros-noetic-visualization-msgs \
   ros-noetic-message-generation ros-noetic-message-runtime \
   ros-noetic-rosbag ros-noetic-rviz \
   ros-noetic-nodelet ros-noetic-velodyne-pointcloud
 ~~~
 
-### Analysis tools
+### Analysis tools (optional)
 
 **Python 3.8+**, **NumPy ≥ 1.24.4**, **SciPy ≥ 1.10.1**, and **Matplotlib ≥ 3.7.5** are required. The tools were checked locally with Python 3.8.10 and those library versions. ROS is not required for offline analysis.
 
 ## Install
 
-### Analysis tools · available now
+### Build the odometry system
 
-From the repository root, create an isolated Python environment and install the dependencies:
+After installing the dependencies above, clone and build in a catkin workspace:
 
 ~~~bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install \
-  'numpy>=1.24.4' 'scipy>=1.10.1' 'matplotlib>=3.7.5'
-~~~
-
-Activate this environment again in each new analysis terminal with `source .venv/bin/activate`.
-
-### Odometry system · core source required
-
-<!-- ~~~bash
 source /opt/ros/noetic/setup.bash
 mkdir -p ~/g2m_ws/src
-cp -a /path/to/core_release/src/G2M_LIO ~/g2m_ws/src/
-cp -a config launch rviz_cfg ~/g2m_ws/src/G2M_LIO/
+cd ~/g2m_ws/src
+git clone https://github.com/SunnyUpliftingCowboy/G2M-LIO-public.git
 cd ~/g2m_ws
-catkin_make -DCMAKE_BUILD_TYPE=Release
+catkin_make -DCMAKE_BUILD_TYPE=Release -j2
 source devel/setup.bash
-~~~ -->
+~~~
 
+### Analysis tools (optional)
+
+The Python environment is only needed for the analysis and plotting scripts:
+
+~~~bash
+cd ~/g2m_ws/src/G2M-LIO-public
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-analysis.txt
+~~~
 
 ## Run
 
@@ -93,7 +91,7 @@ source ~/g2m_ws/devel/setup.bash
 
 Check the YAML topics, timestamp units, LiDAR type, and extrinsic calibration against the recording first. These launch files do not enable simulated time except for SubT-MRS Hawkins.
 
-The launch and RViz files in `launch/` and `rviz_cfg/` match the four public configurations. They do not include the G2M-LIO ROS node or its build files.
+The launch and RViz files use the four bundled configurations and the built run_mapping_online node.
 
 **Livox Avia — `avia.yaml` + `avia.launch`**
 
@@ -243,6 +241,17 @@ We extend our deepest appreciation to the teams behind the following datasets. T
 ## Known Issues
 
 I welcome discussions about the algorithm, but my knowledge is limited, so it may take me considerable time to offer an explanation, and that explanation may not be rigorous. I will list confirmed unresolved issues here; some may also point to directions for my future research.
+
+
+The source snapshot retains these known implementation limits:
+
+- Position prediction includes a second-order acceleration term, while position covariance propagation retains a first-order approximation.
+- gravity_m_s2 controls acceleration scaling, but the S2 gravity-state norm remains fixed at 9.809 m/s². Changing the parameter does not change that state norm.
+- imu_init_frame_count currently counts IMU samples rather than LiDAR frames. Initialization assumes a stationary sensor and does not enforce stationarity.
+- Timestamp rollback handling and odometry publication after rejected scans need further work. Restart the node when restarting a recording from an earlier time.
+- Deskew uses SLERP for rotation and linear interpolation of predicted positions between IMU nodes.
+
+The included tests exercise IMU boundaries, compensation, bias/unit conversion, and process-model Jacobians. They do not establish dataset accuracy or validate the complete discrete covariance model. This source preparation does not change the algorithm to address the limits above.
 
 ## LICENSE
 

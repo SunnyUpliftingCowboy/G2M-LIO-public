@@ -3,6 +3,7 @@
   <arg name="use_sim_time" default="true" />
   <arg name="decode_packets" default="true" />
   <arg name="play_bag" default="false" />
+  <!-- Set bag_file explicitly when play_bag:=true. -->
   <arg name="bag_file" default="" />
   <!-- The first 3 s contain real rotation; initialize during the measured stationary interval. -->
   <arg name="start" default="3.3" />

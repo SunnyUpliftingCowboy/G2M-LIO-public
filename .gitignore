@@ -1,4 +1,4 @@
-# Public preview allowlist. New files require an explicit review and exception.
+# Public release allowlist. New files require an explicit review and exception.
 /*
 !/.gitignore
 !/README.md
@@ -47,3 +47,31 @@ __pycache__/
 *.bag
 *.pcd
 results/
+
+# Core ROS package release.
+!/CMakeLists.txt
+!/package.xml
+!/THIRD_PARTY_NOTICES.md
+!/app/
+!/cmake/
+!/include/
+!/msg/
+!/src/
+!/thirdparty/
+!/tests/
+!/Log/
+/Log/*
+!/Log/.gitkeep
+
+# Build outputs and local tools are never release inputs.
+build/
+devel/
+install/
+logs/
+Testing/
+.venv/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.so
+*.a

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--
+  G2M-LIO modification notice (2026-10-28).
+  This file contains G2M-LIO adaptations of AKF-LIO (45fc811ba6fe).
+  This dated notice was added on the date above; earlier modification dates
+  were not reconstructed. See THIRD_PARTY_NOTICES.md at the repository root.
+  Existing upstream copyright and license notices are retained.
+-->
+
+<package>
+    <name>g2m_lio</name>
+    <version>1.0.0</version>
+
+    <description>
+        G2M-LIO: LiDAR-Inertial Odometry with Gaussian Map and Covariance Propagation
+        Based on AKF-LIO with map point covariance propagation
+    </description>
+
+    <maintainer email="whuyjj@whu.edu.cn">yjj_slam</maintainer>
+
+    <license>GPL-2.0-only</license>
+
+    <author email="xxieak@connect.ust.hk">Xupeng XIE</author>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>nav_msgs</build_depend>
+    <build_depend>roscpp</build_depend>
+    <build_depend>rospy</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>sensor_msgs</build_depend>
+    <build_depend>tf</build_depend>
+    <build_depend>pcl_ros</build_depend>
+    <build_depend>message_generation</build_depend>
+    <build_depend>cv_bridge</build_depend>
+    <build_depend>eigen_conversions</build_depend>
+    <build_depend>pcl_conversions</build_depend>
+    <build_depend>visualization_msgs</build_depend>
+    <build_depend>libtbb-dev</build_depend>
+    <build_depend>libgflags-dev</build_depend>
+    <build_depend>libgoogle-glog-dev</build_depend>
+    <build_depend>yaml-cpp</build_depend>
+
+    <run_depend>geometry_msgs</run_depend>
+    <run_depend>nav_msgs</run_depend>
+    <run_depend>sensor_msgs</run_depend>
+    <run_depend>roscpp</run_depend>
+    <run_depend>rospy</run_depend>
+    <run_depend>std_msgs</run_depend>
+    <run_depend>tf</run_depend>
+    <run_depend>pcl_ros</run_depend>
+    <run_depend>message_runtime</run_depend>
+    <run_depend>cv_bridge</run_depend>
+    <run_depend>eigen_conversions</run_depend>
+    <run_depend>pcl_conversions</run_depend>
+    <run_depend>visualization_msgs</run_depend>
+    <run_depend>libtbb-dev</run_depend>
+    <run_depend>libgflags-dev</run_depend>
+    <run_depend>libgoogle-glog-dev</run_depend>
+    <run_depend>yaml-cpp</run_depend>
+    <run_depend>rviz</run_depend>
+    <run_depend>rosbag</run_depend>
+    <run_depend>nodelet</run_depend>
+    <run_depend>velodyne_pointcloud</run_depend>
+
+    <test_depend>rostest</test_depend>
+
+    <export>
+    </export>
+</package>

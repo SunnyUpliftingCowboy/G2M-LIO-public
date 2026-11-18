@@ -30,7 +30,7 @@ lio:
   lidar_angle_sigma_deg: 0.05  # 测角标准差 (deg) 0.05
   residual_gate_sigma: 3      # 残差门控阈值（标准差倍数）
   residual_variance_floor: 0.001 # 残差方差下限
-  imu_init_frame_count: 20      # IMU初始化使用的激光帧数
+  imu_init_frame_count: 20      # 当前实现按 IMU 样本计数；初始化时保持静止
   # IMU参数
   # gravity_m_s2: 重力加速度值 (m/s²), 默认 9.81 (广东地区)
   # imu_acc_unit: IMU加速度计在1g重力下的原始读数, 默认 -1.0 (自动从静止数据计算)
